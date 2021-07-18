@@ -14,6 +14,7 @@ imiona_mezczyzn = pd.read_csv(r'Wykaz_imion_męskich_osób_żyjących_wg_pola_im
 nazwiska_kobiet = pd.read_csv(r'nazwiska_żeńskie-z_uwzględnieniem_osób_zmarłych.csv', index_col=None, header=0, encoding='utf-8')
 nazwiska_mezczyzn = pd.read_csv(r'nazwiska_męskie-z_uwzględnieniem_osób_zmarłych.csv', index_col=None, header=0, encoding='utf-8')
 ulice = pd.read_csv(r'ULIC_Urzedowy_2021-07-17.csv', index_col=None, header=0, encoding='utf-8', error_bad_lines=False, sep='delimiter', delimiter = ';')
+miasta = pd.read_csv(r'SIMC_Urzedowy_2021-07-18.csv', index_col=None, header=0, encoding='utf-8', error_bad_lines=False, sep='delimiter', delimiter = ';')
 #source https://eteryt.stat.gov.pl/eTeryt/rejestr_teryt/udostepnianie_danych/baza_teryt/uzytkownicy_indywidualni/pobieranie/pliki_pelne.aspx?contrast=default
 
 
@@ -57,6 +58,22 @@ for x in range(number_k):
 
 kobiety['pesel'] = pesele_k
 
+#generating adress for women
+numer_k = np.random.randint(0, 300, size = number_k*100)
+df = pd.DataFrame(numer_k, columns = ['numery'])
+
+m_k = miasta['NAZWA'].values.tolist()
+m_k = random.sample(m_k, number_k)
+m_k = [x for x in m_k if pd.isnull(x) == False]
+df_2 = pd.DataFrame(m_k, columns = ['miasto'])
+
+ulice['ulica'] = ulice['CECHA'] + ' ' + ulice['NAZWA_1'] + ' ' + df['numery'].astype(str) + ', ' + df_2['miasto']
+u_k = ulice['ulica'].values.tolist()
+u_k = [x for x in u_k if pd.isnull(x) == False]
+random_u_k = random.sample(u_k, number_k)
+
+kobiety = kobiety.assign(adres=random_u_k)
+
 #generating dataframes with man identity
 
 mezczyzni = dataframe
@@ -70,16 +87,27 @@ for x in range(number_m):
     pesel = pesel.generate(gender='m')
     pesele_m.append(pesel)
 
+#adding pesel to dataframe
 mezczyzni['pesel'] = pesele_m
 
 
-#ponizej nie dziala
-numer = np.random.randint(0, 300, size = number_m)
-df = pd.DataFrame(numer, columns = ['numery']) 
-ulice['ulica'] = ulice['CECHA'] + ' ' + ulice['NAZWA_1'] + ' ' + df['numery'].astype(str)
-u_m = ulice['ulica'].values.tolist()
-print(random.sample(u_m, number_m))
+#generating adress for men
+numer_m = np.random.randint(0, 300, size = number_m*100)
+df = pd.DataFrame(numer_m, columns = ['numery'])
 
-print(kobiety)
-print(mezczyzni)
+m_m = miasta['NAZWA'].values.tolist()
+m_m = random.sample(m_m, number_m)
+m_m = [x for x in m_m if pd.isnull(x) == False]
+df_2 = pd.DataFrame(m_m, columns = ['miasto'])
+
+ulice['ulica'] = ulice['CECHA'] + ' ' + ulice['NAZWA_1'] + ' ' + df['numery'].astype(str) + ', ' + df_2['miasto']
+u_m = ulice['ulica'].values.tolist()
+u_m = [x for x in u_m if pd.isnull(x) == False]
+random_u_m = random.sample(u_m, number_m)
+
+#adding address to dataframe
+mezczyzni = mezczyzni.assign(adres=random_u_m)
+
+print(kobiety['adres'])
+print(mezczyzni['adres'])
 
